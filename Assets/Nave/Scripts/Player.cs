@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
 {   
     public static Player instance;
 
+
+    public GameObject player;
     public Rigidbody2D rb;
     public BoxCollider2D collisor;
     public float inputX;
@@ -21,10 +23,18 @@ public class Player : MonoBehaviour
     public float fireRate;
     public GameObject playerShot;
     public Transform playerAim;
+    public float playerLife;
+    public GameObject telaMorrer;
 
     private void Awake()
     {
         instance = this;
+    }
+
+    void Start()
+    {
+        playerLife = 10;
+        telaMorrer.SetActive(false);
     }
 
     void Update()
@@ -38,6 +48,11 @@ public class Player : MonoBehaviour
 
         if(inputShot != 0)
             Shot();
+
+        if (playerLife == 0)
+        {
+            Morrer();
+        }
     }
 
     public void FixedUpdate()
@@ -59,5 +74,20 @@ public class Player : MonoBehaviour
         Instantiate(playerShot, playerAim.position, Quaternion.identity);
         yield return new WaitForSeconds(fireRate);
         canShot = true;
+    }
+
+    public void OnTriggerEnter2D(Collider2D collider)
+    {
+        if(collider.CompareTag("Enemy"))
+        {
+            playerLife--;
+        }
+    }
+
+    public void Morrer()
+    {
+        player.SetActive(false);
+        telaMorrer.SetActive(true);
+        GameManager.instance.enemyObject.SetActive(false);
     }
 }

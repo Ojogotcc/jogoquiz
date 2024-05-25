@@ -6,8 +6,12 @@ public class Enemy : MonoBehaviour
 {
     public Rigidbody2D rbEnemy;
     public BoxCollider2D enemyCollisor;
-    public float velocity;
+    private float velocity;
     
+    void Start()
+    {
+        velocity = Random.Range(-1, -5);
+    }
     public void FixedUpdate()
     {
         rbEnemy.velocity = new Vector2(0, velocity);
