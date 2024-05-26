@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class PlayerBullet : MonoBehaviour
+public class Bullets2 : MonoBehaviour
 {
+    // Start is called before the first frame update
     public Rigidbody2D rbBullet;
     public BoxCollider2D shotCollisor;
     public float velocity;
@@ -36,3 +36,5 @@ public class PlayerBullet : MonoBehaviour
 }
 }
 }
+
+

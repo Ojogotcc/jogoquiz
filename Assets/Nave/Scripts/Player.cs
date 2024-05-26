@@ -4,27 +4,30 @@ using System.Data;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Animations;
+using UnityEngine.UIElements;
 
 public class Player : MonoBehaviour
 {   
     public static Player instance;
 
-
+    [Header("Movimentação")]    
     public GameObject player;
     public Rigidbody2D rb;
     public BoxCollider2D collisor;
-    public float inputX;
-    public float inputY;
-    public float velocity;
-    public bool canMoveX;
-    public bool canMoveY;
-    public float inputShot;
+    public float inputX, inputY, velocity; 
+    public bool canMoveX, canMoveY ;
+
+    [Header("TiroBasico")]
+    public float inputShot, fireRate;
     public bool canShot;
-    public float fireRate;
-    public GameObject playerShot;
+    public GameObject playerShot, telaMorrer ;
     public Transform playerAim;
     public float playerLife;
-    public GameObject telaMorrer;
+
+    [Header("Raio")]
+    public Transform[] playerAim2;
+    public float inputShot2;
+    public GameObject[] playerBeam;
 
     private void Awake()
     {
@@ -35,6 +38,8 @@ public class Player : MonoBehaviour
     {
         playerLife = 10;
         telaMorrer.SetActive(false);
+
+        GameManager.instance.enemyObject[GameManager.instance.enemyGenerator.Length].SetActive(true);
     }
 
     void Update()
@@ -46,9 +51,14 @@ public class Player : MonoBehaviour
 
         inputShot = Input.GetAxis("Fire1");
 
+        inputShot2 = Input.GetAxis("Fire2");
+
         if(inputShot != 0)
             Shot();
 
+        if(inputShot2 != 0)
+            Shot2();
+        
         if (playerLife == 0)
         {
             Morrer();
@@ -80,7 +90,7 @@ public class Player : MonoBehaviour
     {
         if(collider.CompareTag("Enemy"))
         {
-            playerLife--;
+            Morrer();
         }
     }
 
@@ -88,6 +98,21 @@ public class Player : MonoBehaviour
     {
         player.SetActive(false);
         telaMorrer.SetActive(true);
-        GameManager.instance.enemyObject.SetActive(false);
+        GameManager.instance.enemyObject[GameManager.instance.enemyGenerator.Length].SetActive(true);
+    }
+
+    public void Shot2()
+    {
+        if(canShot)
+            StartCoroutine(ShotProjectile2());
+    }
+
+    public IEnumerator ShotProjectile2()
+    {
+        canShot = false;
+        Instantiate(playerBeam[0], playerAim2[0].position, Quaternion.identity);
+        Instantiate(playerBeam[1], playerAim2[1].position, Quaternion.identity);
+        yield return new WaitForSeconds(fireRate);
+        canShot = true;
     }
 }

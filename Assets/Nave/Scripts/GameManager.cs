@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    public GameObject enemyObject;
+    public GameObject[] enemyObject;
     public Transform[] enemyGenerator;
     public float enemyRange;
 
@@ -25,7 +25,8 @@ public class GameManager : MonoBehaviour
     public IEnumerator GenerateEnemy()
     {
         int rnd = Random.Range(0, enemyGenerator.Length);
-        Instantiate(enemyObject, enemyGenerator[rnd].position, Quaternion.identity);
+        int rndG = Random.Range(0, enemyObject.Length);
+        Instantiate(enemyObject[rndG], enemyGenerator[rnd].position, Quaternion.identity);
         yield return new WaitForSeconds(enemyRange);
         StartCoroutine(GenerateEnemy());
     }
