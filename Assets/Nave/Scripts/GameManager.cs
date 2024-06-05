@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,6 +15,9 @@ public class GameManager : MonoBehaviour
     public float enemyRange;
     public float powerUpsRange;
     public GameObject player, buttons;
+    public TMP_Text pontuacao;
+
+    public string textoPontuacao;
 
 
     private void Awake()
@@ -70,6 +74,11 @@ public class GameManager : MonoBehaviour
         enemyObject[enemyObject.Length].SetActive(false);
         scenes[0].SetActive(true);
         scenes[1].SetActive(false);
+    }
+
+    void PegarPontuacao()
+    {
+        pontuacao.text = $"Score {Player.instance.enemyDeaths}";
     }
 
 }

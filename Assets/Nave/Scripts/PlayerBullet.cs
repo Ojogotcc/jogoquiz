@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -24,15 +25,13 @@ public class PlayerBullet : MonoBehaviour
 
     public void OnTriggerEnter2D(Collider2D collider)
     {
-         if(collider.gameObject.CompareTag("Enemy"))
+        if (collider.gameObject.CompareTag("Enemy"))
         {
             Destroy(collider.gameObject);
             Destroy(gameObject);
             var copy = Instantiate(explosion, startExplosion.position, Quaternion.identity);
             Destroy(copy, .5f);
-            
-            enemyDeaths++;
-        
-}
-}
+            Player.instance.enemyDeaths++;
+        }
+    }
 }

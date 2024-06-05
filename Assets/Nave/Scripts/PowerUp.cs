@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class PowerUp : MonoBehaviour
 {
-    
+
     public Rigidbody2D rbEnemy;
     public BoxCollider2D enemyCollisor;
     private float velocity;
-    
+
     void Start()
     {
         velocity = Random.Range(-1, -5);

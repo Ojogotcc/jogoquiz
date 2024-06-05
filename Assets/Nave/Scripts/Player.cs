@@ -19,7 +19,7 @@ public class Player : MonoBehaviour
     public Rigidbody2D rb;
     public BoxCollider2D collisor;
     public float inputX, inputY, velocity;
-    public bool canMove;
+    public bool canMoveX, canMoveY;
 
     [Header("TiroBasico")]
     public float inputShot, fireRate;
@@ -32,12 +32,9 @@ public class Player : MonoBehaviour
     public Transform[] playerAim2;
     public float inputShot2;
     public GameObject[] playerBeam;
+    public int enemyDeaths;
 
-    [Header("Vida")]
-    public GameObject[] playerLifeImg;
-    public Transform[] lifeAnchor;
 
-    public GameObject vida;
 
     private void Awake()
     {
@@ -47,27 +44,37 @@ public class Player : MonoBehaviour
     void Start()
     {
         playerLife = 1;
+        enemyDeaths = 0;
         telaMorrer.SetActive(false);
         GameManager.instance.enemyObject[GameManager.instance.enemyGenerator.Length].SetActive(true);
     }
 
     void Update()
     {
+        if (canMoveX)
+            inputX = Input.GetAxis("Horizontal");
 
-        if (Input.touchCount > 0)
-        {
-            Touch t = Input.GetTouch(0);
-
-            if (t.phase == TouchPhase.Moved)
-            {
-                transform.position += (Vector3)t.deltaPosition / 600;
-            }
-        }
+        if(canMoveY)
+            inputY = Input.GetAxis("Vertical");
 
         if (playerLife == 0)
         {
             Morrer();
         }
+
+        inputShot = Input.GetAxis("Fire1");
+        inputShot2 = Input.GetAxis("Fire2");
+
+        if(inputShot != 0)
+            Shot();
+        
+        if(inputShot2 != 0)
+            Shot2();
+    }
+
+    void FixedUpdate()
+    {
+        rb.velocity = new Vector2(inputX * velocity, inputY * velocity);
     }
 
 
@@ -85,6 +92,14 @@ public class Player : MonoBehaviour
         Instantiate(playerShot, playerAim.position, Quaternion.identity);
         yield return new WaitForSeconds(fireRate);
         canShot = true;
+    }
+
+    public void PerderTamanho()
+    {
+        if(playerLife > 1)
+        {
+            player.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+        }
     }
 
     void Morrer()
@@ -113,6 +128,10 @@ public class Player : MonoBehaviour
             {
                 playerLife += 1;
                 Destroy(collider.gameObject);
+                if (playerLife == 2)
+                {
+                    player.transform.localScale = new Vector3(0.65f, 0.65f, 0.65f);
+                }
             }
         }
 
@@ -120,10 +139,8 @@ public class Player : MonoBehaviour
         {
             StartCoroutine(AumentaroRange());
             Destroy(collider.gameObject);
-
         }
     }
-
 
     IEnumerator AumentaroRange()
     {
