@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    public GameObject[] enemyObject;
-    public Transform[] enemyGenerator;
+    public GameObject[] enemyObject, scenes, powerUps;
+    public Transform[] enemyGenerator, powerUpsGenerator;
     public float enemyRange;
+    public float powerUpsRange;
+    public GameObject player, buttons;
+
 
     private void Awake()
     {
@@ -20,6 +24,22 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         StartCoroutine(GenerateEnemy());
+        StartCoroutine(GeneratePowerUps());
+        buttons.SetActive(false);
+        player.SetActive(false);
+        enemyObject[enemyObject.Length].SetActive(false);
+        scenes[0].SetActive(true);
+        scenes[1].SetActive(false);
+    }
+
+    public void startGame()
+    {
+        scenes[0].SetActive(false);
+        buttons.SetActive(true);
+        buttons.SetActive(true);
+        player.SetActive(true);
+        enemyObject[enemyObject.Length].SetActive(true);
+
     }
 
     public IEnumerator GenerateEnemy()
@@ -31,9 +51,25 @@ public class GameManager : MonoBehaviour
         StartCoroutine(GenerateEnemy());
     }
 
+    public IEnumerator GeneratePowerUps()
+    {
+        int rnd = Random.Range(0, powerUpsGenerator.Length);
+        int rndG = Random.Range(0, powerUps.Length);
+        Instantiate(powerUps[rndG], powerUpsGenerator[rnd].position, Quaternion.identity);
+        yield return new WaitForSeconds(powerUpsRange);
+        StartCoroutine(GeneratePowerUps());
+
+    }
+
     public void GenerateScene()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        StartCoroutine(GenerateEnemy());
+        StartCoroutine(GeneratePowerUps());
+        buttons.SetActive(false);
+        player.SetActive(false);
+        enemyObject[enemyObject.Length].SetActive(false);
+        scenes[0].SetActive(true);
+        scenes[1].SetActive(false);
     }
 
 }

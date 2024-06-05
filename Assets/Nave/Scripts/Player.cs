@@ -1,26 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Animations;
+using UnityEngine.InputSystem.Android;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using UnityEngine.Video;
 
 public class Player : MonoBehaviour
-{   
+{
     public static Player instance;
 
-    [Header("Movimentação")]    
+    [Header("Movimentação")]
     public GameObject player;
     public Rigidbody2D rb;
     public BoxCollider2D collisor;
-    public float inputX, inputY, velocity; 
-    public bool canMoveX, canMoveY ;
+    public float inputX, inputY, velocity;
+    public bool canMove;
 
     [Header("TiroBasico")]
     public float inputShot, fireRate;
     public bool canShot;
-    public GameObject playerShot, telaMorrer ;
+    public GameObject playerShot, telaMorrer, buttons;
     public Transform playerAim;
     public float playerLife;
 
@@ -29,6 +33,12 @@ public class Player : MonoBehaviour
     public float inputShot2;
     public GameObject[] playerBeam;
 
+    [Header("Vida")]
+    public GameObject[] playerLifeImg;
+    public Transform[] lifeAnchor;
+
+    public GameObject vida;
+
     private void Awake()
     {
         instance = this;
@@ -36,43 +46,34 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        playerLife = 10;
+        playerLife = 1;
         telaMorrer.SetActive(false);
-
         GameManager.instance.enemyObject[GameManager.instance.enemyGenerator.Length].SetActive(true);
     }
 
     void Update()
     {
-        if(canMoveX)
-            inputX = Input.GetAxis("Horizontal");
-        if(canMoveY)
-            inputY = Input.GetAxis("Vertical");
 
-        inputShot = Input.GetAxis("Fire1");
+        if (Input.touchCount > 0)
+        {
+            Touch t = Input.GetTouch(0);
 
-        inputShot2 = Input.GetAxis("Fire2");
+            if (t.phase == TouchPhase.Moved)
+            {
+                transform.position += (Vector3)t.deltaPosition / 600;
+            }
+        }
 
-        if(inputShot != 0)
-            Shot();
-
-        if(inputShot2 != 0)
-            Shot2();
-        
         if (playerLife == 0)
         {
             Morrer();
         }
     }
 
-    public void FixedUpdate()
-    {
-        rb.velocity = new Vector2(inputX * velocity, inputY * velocity);
-    }
 
     public void Shot()
     {
-        if(canShot)
+        if (canShot)
         {
             StartCoroutine(ShotProjectile());
         }
@@ -86,24 +87,55 @@ public class Player : MonoBehaviour
         canShot = true;
     }
 
+    void Morrer()
+    {
+        telaMorrer.SetActive(true);
+        player.SetActive(false);
+        buttons.SetActive(false);
+    }
+
+    public void Reinitialize()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
     public void OnTriggerEnter2D(Collider2D collider)
     {
-        if(collider.CompareTag("Enemy"))
+
+        if (collider.CompareTag("Enemy"))
         {
-            Morrer();
+            playerLife--;
+        }
+
+        if (playerLife < 3)
+        {
+            if (collider.CompareTag("DaVelocidade"))
+            {
+                playerLife += 1;
+                Destroy(collider.gameObject);
+            }
+        }
+
+        if (collider.CompareTag("AumentaoRange"))
+        {
+            StartCoroutine(AumentaroRange());
+            Destroy(collider.gameObject);
+
         }
     }
 
-    public void Morrer()
+
+    IEnumerator AumentaroRange()
     {
-        player.SetActive(false);
-        telaMorrer.SetActive(true);
-        GameManager.instance.enemyObject[GameManager.instance.enemyGenerator.Length].SetActive(true);
+        fireRate += .2f;
+        yield return new WaitForSeconds(45);
+        fireRate = .1f;
     }
+
 
     public void Shot2()
     {
-        if(canShot)
+        if (canShot)
             StartCoroutine(ShotProjectile2());
     }
 
@@ -115,4 +147,5 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(fireRate);
         canShot = true;
     }
+
 }
